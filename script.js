@@ -33,4 +33,31 @@
       navToggle.setAttribute("aria-expanded", "false");
     });
   });
+
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
+  const lightboxClose = document.getElementById("lightboxClose");
+
+  if (lightbox && lightboxImg) {
+    document.querySelectorAll(".poetry-thumb").forEach(function (thumb) {
+      thumb.addEventListener("click", function () {
+        lightboxImg.src = thumb.getAttribute("data-full");
+        lightboxImg.alt = thumb.querySelector("img").alt;
+        lightbox.classList.add("open");
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove("open");
+      lightboxImg.src = "";
+    }
+
+    lightboxClose.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", function (e) {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeLightbox();
+    });
+  }
 })();
