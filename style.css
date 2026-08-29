@@ -219,6 +219,18 @@ a { color: inherit; text-decoration: none; }
 .news-text strong { color: var(--fg); font-weight: 600; }
 
 /* Publications */
+.pub-group {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--fg-muted);
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.pub-group + .pub-list { margin-bottom: 40px; }
+.pub-list:last-child { margin-bottom: 0; }
 .pub-list { list-style: none; margin: 0; padding: 0; counter-reset: pub; display: grid; gap: 0; }
 .pub-item {
   border-bottom: 1px solid var(--border);
