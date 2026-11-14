@@ -94,7 +94,9 @@
 
   const LAYERS = 5;
   const ROWS = 5;
+  const LABEL_H = 22;
   const LAYER_COLORS = ["--c-blue", "--c-purple", "--c-teal", "--c-pink", "--c-amber"];
+  const LAYER_LABELS = ["Input", "Hidden", "Hidden", "Hidden", "Output"];
   let nodes = [];
   let dpr = Math.max(1, window.devicePixelRatio || 1);
   let w = 0, h = 0;
@@ -119,14 +121,15 @@
 
     nodes = [];
     const padX = w * 0.08;
-    const padY = h * 0.14;
+    const plotH = h - LABEL_H;
+    const padY = plotH * 0.12;
     for (let l = 0; l < LAYERS; l++) {
       const x = padX + (l * (w - 2 * padX)) / (LAYERS - 1);
       const col = [];
       const rowsInCol = ROWS - (l % 2 === 0 ? 0 : 1);
-      const offset = rowsInCol < ROWS ? (h - 2 * padY) / (ROWS - 1) / 2 : 0;
+      const offset = rowsInCol < ROWS ? (plotH - 2 * padY) / (ROWS - 1) / 2 : 0;
       for (let r = 0; r < rowsInCol; r++) {
-        const y = padY + offset + (r * (h - 2 * padY)) / (rowsInCol - 1 || 1);
+        const y = padY + offset + (r * (plotH - 2 * padY)) / (rowsInCol - 1 || 1);
         col.push({ x: x, y: y, activity: 0 });
       }
       nodes.push(col);
@@ -198,7 +201,7 @@
     ctx.fillStyle = border;
     ctx.globalAlpha = 0.4;
     for (let x = 8; x < w; x += 22) {
-      for (let y = 8; y < h; y += 22) {
+      for (let y = 8; y < h - LABEL_H; y += 22) {
         ctx.beginPath();
         ctx.arc(x, y, 0.7, 0, Math.PI * 2);
         ctx.fill();
@@ -206,24 +209,47 @@
     }
     ctx.globalAlpha = 1;
 
-    // nodes (bubbles)
+    // nodes (glossy bubbles)
     nodes.forEach(function (col, l) {
       const color = layerColor(l);
       col.forEach(function (n) {
         n.activity *= 0.965;
-        const r = 4 + n.activity * 3.5;
+        const active = n.activity > 0.05;
+        const r = 5 + n.activity * 4.5;
+        const grad = ctx.createRadialGradient(n.x - r * 0.35, n.y - r * 0.35, r * 0.1, n.x, n.y, r);
+        if (active) {
+          grad.addColorStop(0, "#ffffff");
+          grad.addColorStop(0.4, color);
+          grad.addColorStop(1, color);
+        } else {
+          grad.addColorStop(0, "rgba(255,255,255,0.35)");
+          grad.addColorStop(1, bgAlt());
+        }
         ctx.beginPath();
         ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = n.activity > 0.05 ? color : bgAlt();
-        ctx.globalAlpha = n.activity > 0.05 ? Math.min(1, 0.45 + n.activity) : 1;
+        ctx.fillStyle = grad;
+        if (active) { ctx.shadowColor = color; ctx.shadowBlur = 11; }
         ctx.fill();
-        ctx.lineWidth = 1.4;
-        ctx.strokeStyle = n.activity > 0.05 ? color : fgMuted();
-        ctx.globalAlpha = n.activity > 0.05 ? 1 : 0.7;
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = active ? color : fgMuted();
+        ctx.globalAlpha = active ? 1 : 0.65;
         ctx.stroke();
         ctx.globalAlpha = 1;
       });
     });
+
+    // layer labels
+    ctx.font = "600 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    ctx.fillStyle = fgMuted();
+    ctx.textAlign = "center";
+    ctx.globalAlpha = 0.8;
+    nodes.forEach(function (col, l) {
+      if (!col.length) return;
+      ctx.fillText(LAYER_LABELS[l] || "", col[0].x, h - 6);
+    });
+    ctx.globalAlpha = 1;
+    ctx.textAlign = "left";
 
     requestAnimationFrame(draw);
   }
