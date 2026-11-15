@@ -13,7 +13,7 @@
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (data) {
         if (data && data.count_unique) {
-          visitCounter.textContent = Number(data.count_unique).toLocaleString() + " visitors so far";
+          visitCounter.textContent = "Viewers: " + Number(data.count_unique).toLocaleString();
         }
       })
       .catch(function () { /* blocked by an ad-blocker or offline; fail silently */ });
