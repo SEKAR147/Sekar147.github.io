@@ -7,6 +7,18 @@
 
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  const visitCounter = document.getElementById("visitCounter");
+  if (visitCounter) {
+    fetch("https://sekarm.goatcounter.com/counter//.json")
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (data && data.count_unique) {
+          visitCounter.textContent = Number(data.count_unique).toLocaleString() + " visitors so far";
+        }
+      })
+      .catch(function () { /* blocked by an ad-blocker or offline; fail silently */ });
+  }
+
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
     try { localStorage.setItem("theme", theme); } catch (e) {}
